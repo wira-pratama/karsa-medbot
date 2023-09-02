@@ -4,9 +4,11 @@ EXPOSE 8080
 
 WORKDIR /app
 
-ADD https://gpt4all.io/models/ggml-gpt4all-j-v1.3-groovy.bin /tmp
+RUN mkdir models
 
-COPY /tmp/ggml-gpt4all-j-v1.3-groovy.bin /app/models/ggml-gpt4all-j-v1.3-groovy.bin
+RUN mkdir source_documents
+
+ADD https://gpt4all.io/models/ggml-gpt4all-j-v1.3-groovy.bin /app/models
 
 COPY requirements.txt ./requirements.txt
 
