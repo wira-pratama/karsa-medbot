@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 from langchain.chains import RetrievalQA
 from langchain.embeddings import HuggingFaceEmbeddings
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
+from langchain.prompts import PromptTemplate
 from langchain.vectorstores import Chroma
 from langchain.llms import GPT4All, LlamaCpp
 import chromadb
@@ -22,6 +23,23 @@ model_path = os.environ.get('MODEL_PATH')
 model_n_ctx = os.environ.get('MODEL_N_CTX')
 model_n_batch = int(os.environ.get('MODEL_N_BATCH',8))
 target_source_chunks = int(os.environ.get('TARGET_SOURCE_CHUNKS',4))
+
+prompt_template = """
+You are a helpdesk employee on a hospital. Your job is to help answer questions from a potential patients.
+Your answer should be concice and polite.
+
+Use the following pieces of context to answer the question at the end. 
+If you don't know the answer, just say that you don't know, don't try to make up an answer.
+
+{context}
+
+Question: {question}
+Answer:
+"""
+
+PROMPT = PromptTemplate(
+    template=prompt_template, input_variables=["context", "question"]
+)
 
 from constants import CHROMA_SETTINGS
 
@@ -51,10 +69,9 @@ def privateGPT(query):
         llm=llm, 
         chain_type="stuff", 
         retriever=retriever, 
-        return_source_documents= False
+        return_source_documents= False,
+        chain_type_kwargs={"prompt": PROMPT}
     )
-    
-
    
     if query.strip() != "":
         start = time.time()
